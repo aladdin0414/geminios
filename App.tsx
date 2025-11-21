@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Desktop } from './components/Desktop';
 import { MenuBar } from './components/MenuBar';
@@ -13,6 +14,7 @@ import { Browser } from './components/apps/Browser';
 import { Minesweeper } from './components/apps/Minesweeper';
 import { SystemSettings } from './components/apps/SystemSettings';
 import { AppStore } from './components/apps/AppStore';
+import { TextEditor } from './components/apps/TextEditor';
 import { useLanguage } from './contexts/LanguageContext';
 
 const App: React.FC = () => {
@@ -50,6 +52,8 @@ const App: React.FC = () => {
         return <Minesweeper />;
         case AppType.APP_STORE:
         return <AppStore />;
+        case AppType.TEXT_EDITOR:
+        return <TextEditor />;
         case AppType.SYSTEM_PREFS:
         return (
             <SystemSettings 
@@ -150,7 +154,11 @@ const App: React.FC = () => {
     } else if (item.type === 'FOLDER') {
       openApp(AppType.FINDER, { title: item.label });
     } else if (item.type === 'FILE') {
-      openApp(AppType.TERMINAL); 
+      if (item.id === 'file-notes') {
+        openApp(AppType.TEXT_EDITOR);
+      } else {
+        openApp(AppType.TERMINAL); 
+      }
     }
   };
 

@@ -26,6 +26,7 @@ export const translations = {
     "app.settings": "System Settings",
     "app.appstore": "App Store",
     "app.about": "About",
+    "app.texteditor": "TextEdit",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari",
     "desktop.folder.projects": "Project Alpha",
@@ -74,7 +75,10 @@ export const translations = {
     "store.develop": "Develop",
     "store.featured": "Featured",
     "store.get": "Get",
-    "store.open": "Open"
+    "store.open": "Open",
+    "editor.placeholder": "Start typing...",
+    "editor.save": "Save",
+    "editor.saved": "Saved"
   },
   zh: {
     "login.guest": "访客用户",
@@ -100,6 +104,7 @@ export const translations = {
     "app.settings": "系统设置",
     "app.appstore": "App Store",
     "app.about": "关于",
+    "app.texteditor": "文本编辑",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari浏览器",
     "desktop.folder.projects": "阿尔法项目",
@@ -148,7 +153,10 @@ export const translations = {
     "store.develop": "开发",
     "store.featured": "精选",
     "store.get": "获取",
-    "store.open": "打开"
+    "store.open": "打开",
+    "editor.placeholder": "开始输入...",
+    "editor.save": "保存",
+    "editor.saved": "已保存"
   }
 };
 
