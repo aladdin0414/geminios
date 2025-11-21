@@ -2,7 +2,15 @@ import { GoogleGenAI, Chat } from "@google/genai";
 
 // Initialize the Gemini API client
 // We safely access process.env to avoid crashing in environments where process is undefined (like Vite default)
-const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) ? process.env.API_KEY : '';
+let apiKey = '';
+try {
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    apiKey = process.env.API_KEY;
+  }
+} catch (e) {
+  console.warn("Error reading API_KEY from environment:", e);
+}
+
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export interface GeminiChatSession {

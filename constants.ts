@@ -13,7 +13,7 @@ import {
   Compass,
   Gamepad2,
   LayoutGrid,
-  NotepadText
+  StickyNote
 } from 'lucide-react';
 
 export const INITIAL_WINDOW_WIDTH = 600;
@@ -58,7 +58,7 @@ export const DOCK_APPS = [
   {
     id: AppType.TEXT_EDITOR,
     name: 'app.texteditor',
-    icon: NotepadText,
+    icon: StickyNote,
     color: 'bg-yellow-400 text-white'
   },
   {
