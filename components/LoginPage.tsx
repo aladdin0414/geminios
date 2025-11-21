@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { User, ArrowRight, Power, RefreshCw, Moon, Globe } from 'lucide-react';
+import { ArrowRight, Power, RefreshCw, Moon, Globe } from 'lucide-react';
 import { WALLPAPER_URL } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -56,13 +57,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
         {/* Middle Section: User & Login */}
         <div className="flex flex-col items-center gap-6 w-full max-w-xs">
-          <div className="relative">
-            <div className="w-28 h-28 bg-gradient-to-b from-slate-300 to-slate-400 rounded-full flex items-center justify-center shadow-2xl border-2 border-white/20">
-              <User size={64} className="text-slate-700 opacity-80" strokeWidth={1.5} />
+          <div className="relative group cursor-pointer">
+            {/* Sunflower Avatar */}
+            <div className="w-32 h-32 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl border-2 border-white/20 overflow-hidden p-1 transition-transform duration-500 group-hover:scale-105">
+               <img 
+                  src="https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=400&auto=format&fit=crop" 
+                  alt="User Avatar" 
+                  className="w-full h-full rounded-full object-cover"
+               />
             </div>
           </div>
           
-          <div className="text-2xl font-semibold drop-shadow-md">{t('login.guest')}</div>
+          <div className="text-2xl font-semibold drop-shadow-md tracking-wide">{t('login.guest')}</div>
 
           <form onSubmit={handleSubmit} className="relative w-full flex justify-center">
             <div className="relative w-48 group">
