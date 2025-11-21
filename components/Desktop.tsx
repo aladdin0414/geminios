@@ -1,5 +1,5 @@
+
 import React, { useState } from 'react';
-import { WALLPAPER_URL } from '../constants';
 import { DesktopItem } from '../types';
 import { DesktopIcon } from './DesktopIcon';
 
@@ -8,9 +8,10 @@ interface DesktopProps {
   items: DesktopItem[];
   onOpenItem: (item: DesktopItem) => void;
   onMoveItem?: (id: string, x: number, y: number) => void;
+  wallpaper: string;
 }
 
-export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, onMoveItem }) => {
+export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, onMoveItem, wallpaper }) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
@@ -38,10 +39,15 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
     const GRID_WIDTH = 100;
     const GRID_HEIGHT = 110;
     const MARGIN_TOP = 40; 
-    const MARGIN_LEFT = 10;
+    const MARGIN_RIGHT = 10;
 
     // Calculate Grid Position
-    const dropX = Math.max(0, Math.floor((e.clientX - MARGIN_LEFT) / GRID_WIDTH));
+    // We calculate X from the right side now
+    const screenWidth = window.innerWidth;
+    const mouseX = e.clientX;
+    const distanceFromRight = screenWidth - mouseX;
+    
+    const dropX = Math.max(0, Math.floor((distanceFromRight - MARGIN_RIGHT) / GRID_WIDTH));
     const dropY = Math.max(0, Math.floor((e.clientY - MARGIN_TOP) / GRID_HEIGHT));
 
     // Collision Detection & Resolution
@@ -88,8 +94,8 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
 
   return (
     <div 
-      className="relative w-screen h-screen overflow-hidden bg-cover bg-center select-none"
-      style={{ backgroundImage: `url(${WALLPAPER_URL})` }}
+      className="relative w-screen h-screen overflow-hidden bg-cover bg-center select-none transition-all duration-500"
+      style={{ backgroundImage: `url(${wallpaper})` }}
       onClick={handleBackgroundClick}
       onDragOver={handleDragOver}
       onDrop={handleDrop}

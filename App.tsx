@@ -5,42 +5,66 @@ import { Dock } from './components/Dock';
 import { Window } from './components/Window';
 import { LoginPage } from './components/LoginPage';
 import { AppType, WindowState, DesktopItem } from './types';
-import { DOCK_APPS, INITIAL_WINDOW_HEIGHT, INITIAL_WINDOW_WIDTH, DESKTOP_ITEMS } from './constants';
+import { DOCK_APPS, INITIAL_WINDOW_HEIGHT, INITIAL_WINDOW_WIDTH, DESKTOP_ITEMS, WALLPAPER_URL } from './constants';
 import { GeminiChat } from './components/apps/GeminiChat';
 import { AboutApp } from './components/apps/About';
 import { Finder } from './components/apps/Finder';
 import { Browser } from './components/apps/Browser';
 import { Minesweeper } from './components/apps/Minesweeper';
+import { SystemSettings } from './components/apps/SystemSettings';
+import { AppStore } from './components/apps/AppStore';
 import { useLanguage } from './contexts/LanguageContext';
-
-// Helper to get content based on app type
-const getAppContent = (type: AppType, props?: any) => {
-  switch (type) {
-    case AppType.GEMINI_ASSISTANT:
-      return <GeminiChat />;
-    case AppType.ABOUT:
-      return <AboutApp />;
-    case AppType.FINDER:
-      return <Finder title={props?.title} />;
-    case AppType.BROWSER:
-      return <Browser />;
-    case AppType.MINESWEEPER:
-      return <Minesweeper />;
-    case AppType.SYSTEM_PREFS:
-      return <div className="p-8 text-center text-slate-500">System Settings not implemented in demo.</div>;
-    case AppType.TERMINAL:
-      return <div className="p-4 bg-black h-full font-mono text-green-400 text-sm">gemini-os:~ user$ echo "Hello World"<br/>Hello World<br/>gemini-os:~ user$ _</div>;
-    default:
-      return null;
-  }
-};
 
 const App: React.FC = () => {
   const { t } = useLanguage();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [nextZIndex, setNextZIndex] = useState(10);
   const [desktopItems, setDesktopItems] = useState<DesktopItem[]>(DESKTOP_ITEMS);
+  
+  // System State
+  const [wallpaper, setWallpaper] = useState(WALLPAPER_URL);
+  const [isDark, setIsDark] = useState(false);
+
+  // Apply dark mode to html element
+  useEffect(() => {
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  // Helper to get content based on app type
+  const getAppContent = (type: AppType, props?: any) => {
+    switch (type) {
+        case AppType.GEMINI_ASSISTANT:
+        return <GeminiChat />;
+        case AppType.ABOUT:
+        return <AboutApp />;
+        case AppType.FINDER:
+        return <Finder title={props?.title} />;
+        case AppType.BROWSER:
+        return <Browser />;
+        case AppType.MINESWEEPER:
+        return <Minesweeper />;
+        case AppType.APP_STORE:
+        return <AppStore />;
+        case AppType.SYSTEM_PREFS:
+        return (
+            <SystemSettings 
+                isDark={isDark} 
+                setTheme={setIsDark} 
+                wallpaper={wallpaper}
+                setWallpaper={setWallpaper}
+            />
+        );
+        case AppType.TERMINAL:
+        return <div className="p-4 bg-black h-full font-mono text-green-400 text-sm">gemini-os:~ user$ echo "Hello World"<br/>Hello World<br/>gemini-os:~ user$ _</div>;
+        default:
+        return null;
+    }
+  };
 
   // Generate a safe initial position so windows don't perfectly overlap
   const getInitialPosition = (index: number) => ({
@@ -50,11 +74,8 @@ const App: React.FC = () => {
 
   const openApp = (type: AppType, props?: any) => {
     const appInfo = DOCK_APPS.find(a => a.id === type);
-    // Translate the app name or use provided title (which might need translation if it's a key)
     const translatedAppName = appInfo ? t(appInfo.name) : 'Window';
     
-    // If opening Finder via desktop folder, use the folder name (already translated via desktop item handling if needed)
-    // But currently props.title comes from desktop item label which is a key
     let windowTitle = translatedAppName;
     if (props?.title) {
         windowTitle = t(props.title);
@@ -117,6 +138,12 @@ const App: React.FC = () => {
     ));
   }, []);
 
+  const resizeWindow = useCallback((id: string, width: number, height: number, x: number, y: number) => {
+    setWindows(prev => prev.map(w => 
+      w.id === id ? { ...w, size: { width, height }, position: { x, y } } : w
+    ));
+  }, []);
+
   const handleDesktopItemOpen = (item: DesktopItem) => {
     if (item.type === 'APP' && item.appId) {
       openApp(item.appId);
@@ -140,7 +167,6 @@ const App: React.FC = () => {
 
   const openAppIds = windows.map(w => w.type);
 
-  // Auto-open Gemini Chat on login
   useEffect(() => {
      if (isLoggedIn && windows.length === 0) {
          openApp(AppType.GEMINI_ASSISTANT);
@@ -157,13 +183,15 @@ const App: React.FC = () => {
       items={desktopItems} 
       onOpenItem={handleDesktopItemOpen}
       onMoveItem={handleDesktopItemMove}
+      wallpaper={wallpaper}
     >
       <MenuBar 
         onLogout={handleLogout}
         onAboutClick={() => openApp(AppType.ABOUT)}
+        onSettingsClick={() => openApp(AppType.SYSTEM_PREFS)}
+        onAppStoreClick={() => openApp(AppType.APP_STORE)}
       />
       
-      {/* Window Layer */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
         {windows.map(window => (
            <div key={window.id} className="pointer-events-auto"> 
@@ -174,6 +202,7 @@ const App: React.FC = () => {
                 onMaximize={toggleMaximizeWindow}
                 onFocus={focusWindow}
                 onMove={moveWindow}
+                onResize={resizeWindow}
               />
            </div>
         ))}

@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'zh';
 
 export const translations = {
@@ -22,7 +23,8 @@ export const translations = {
     "app.gemini": "Gemini AI",
     "app.minesweeper": "Minesweeper",
     "app.terminal": "Terminal",
-    "app.settings": "Settings",
+    "app.settings": "System Settings",
+    "app.appstore": "App Store",
     "app.about": "About",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari",
@@ -50,7 +52,29 @@ export const translations = {
     "gemini.placeholder": "Ask Gemini...",
     "gemini.powered": "Powered by Gemini 2.5 Flash",
     "browser.placeholder": "Search or enter website name",
-    "browser.search": "Search"
+    "browser.search": "Search",
+    "settings.sidebar.general": "General",
+    "settings.sidebar.appearance": "Appearance",
+    "settings.sidebar.desktop": "Wallpaper",
+    "settings.sidebar.language": "Language",
+    "settings.appearance.mode": "Appearance",
+    "settings.appearance.light": "Light",
+    "settings.appearance.dark": "Dark",
+    "settings.appearance.auto": "Auto",
+    "settings.desktop.wallpapers": "Wallpapers",
+    "settings.language.select": "Select Language",
+    "settings.general.device": "Device Name",
+    "settings.general.model": "Model",
+    "settings.general.storage": "Storage",
+    "store.discover": "Discover",
+    "store.arcade": "Arcade",
+    "store.create": "Create",
+    "store.work": "Work",
+    "store.play": "Play",
+    "store.develop": "Develop",
+    "store.featured": "Featured",
+    "store.get": "Get",
+    "store.open": "Open"
   },
   zh: {
     "login.guest": "访客用户",
@@ -74,6 +98,7 @@ export const translations = {
     "app.minesweeper": "扫雷",
     "app.terminal": "终端",
     "app.settings": "系统设置",
+    "app.appstore": "App Store",
     "app.about": "关于",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari浏览器",
@@ -101,7 +126,29 @@ export const translations = {
     "gemini.placeholder": "询问 Gemini...",
     "gemini.powered": "由 Gemini 2.5 Flash 驱动",
     "browser.placeholder": "搜索或输入网站名称",
-    "browser.search": "搜索"
+    "browser.search": "搜索",
+    "settings.sidebar.general": "通用",
+    "settings.sidebar.appearance": "外观",
+    "settings.sidebar.desktop": "墙纸",
+    "settings.sidebar.language": "语言与地区",
+    "settings.appearance.mode": "外观模式",
+    "settings.appearance.light": "浅色",
+    "settings.appearance.dark": "深色",
+    "settings.appearance.auto": "自动",
+    "settings.desktop.wallpapers": "墙纸图片",
+    "settings.language.select": "选择语言",
+    "settings.general.device": "设备名称",
+    "settings.general.model": "型号",
+    "settings.general.storage": "存储空间",
+    "store.discover": "探索",
+    "store.arcade": "Arcade",
+    "store.create": "创作",
+    "store.work": "工作",
+    "store.play": "娱乐",
+    "store.develop": "开发",
+    "store.featured": "精选",
+    "store.get": "获取",
+    "store.open": "打开"
   }
 };
 

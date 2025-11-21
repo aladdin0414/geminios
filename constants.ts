@@ -1,3 +1,4 @@
+
 import { AppType, DesktopItem } from './types';
 import { 
   MessageSquare, 
@@ -10,14 +11,23 @@ import {
   Image as ImageIcon,
   Music,
   Compass,
-  Gamepad2
+  Gamepad2,
+  LayoutGrid
 } from 'lucide-react';
 
 export const INITIAL_WINDOW_WIDTH = 600;
 export const INITIAL_WINDOW_HEIGHT = 450;
 
-// Using a high-quality landscape from Unsplash that resembles MacOS wallpapers
+// Default wallpaper
 export const WALLPAPER_URL = "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070&auto=format&fit=crop";
+
+export const WALLPAPERS = [
+  { id: 'sierra', url: "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=2070&auto=format&fit=crop", name: "Sierra" },
+  { id: 'monterey', url: "https://images.unsplash.com/photo-1534234652291-db4189180792?q=80&w=2000&auto=format&fit=crop", name: "Abstract" },
+  { id: 'ventura', url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop", name: "Ventura" },
+  { id: 'sonoma', url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000&auto=format&fit=crop", name: "Sonoma" },
+  { id: 'aurora', url: "https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?q=80&w=2000&auto=format&fit=crop", name: "Aurora" },
+];
 
 export const DOCK_APPS = [
   {
@@ -31,6 +41,12 @@ export const DOCK_APPS = [
     name: 'app.safari',
     icon: Compass,
     color: 'bg-white text-blue-500'
+  },
+  {
+    id: AppType.APP_STORE,
+    name: 'app.appstore',
+    icon: LayoutGrid,
+    color: 'bg-blue-500 text-white'
   },
   {
     id: AppType.GEMINI_ASSISTANT,
