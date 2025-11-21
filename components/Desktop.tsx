@@ -1,22 +1,63 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { DesktopItem } from '../types';
 import { DesktopIcon } from './DesktopIcon';
+import { ContextMenu, ContextMenuItem } from './ContextMenu';
 
 interface DesktopProps {
   children: React.ReactNode;
   items: DesktopItem[];
   onOpenItem: (item: DesktopItem) => void;
   onMoveItem?: (id: string, x: number, y: number) => void;
+  onDeleteItem?: (id: string) => void;
+  onCreateFolder?: (gridX: number, gridY: number) => void;
+  onCreateFile?: (gridX: number, gridY: number) => void;
+  onOpenSettings?: () => void;
   wallpaper: string;
 }
 
-export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, onMoveItem, wallpaper }) => {
+export const Desktop: React.FC<DesktopProps> = ({ 
+  children, 
+  items, 
+  onOpenItem, 
+  onMoveItem, 
+  onDeleteItem,
+  onCreateFolder,
+  onCreateFile,
+  onOpenSettings,
+  wallpaper 
+}) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{
+    show: boolean;
+    x: number;
+    y: number;
+    type: 'DESKTOP' | 'ICON';
+    targetId?: string;
+    gridPos?: { x: number, y: number }; // Store grid pos for creating items at click location
+  }>({ show: false, x: 0, y: 0, type: 'DESKTOP' });
+
+  // Grid Constants (Duplicated from DesktopIcon logic for now, ideally shared)
+  const GRID_WIDTH = 100;
+  const GRID_HEIGHT = 110;
+  const MARGIN_TOP = 40; 
+  const MARGIN_RIGHT = 10;
+
+  const calculateGridPos = (clientX: number, clientY: number) => {
+    const screenWidth = window.innerWidth;
+    const distanceFromRight = screenWidth - clientX;
+    
+    const x = Math.max(0, Math.floor((distanceFromRight - MARGIN_RIGHT) / GRID_WIDTH));
+    const y = Math.max(0, Math.floor((clientY - MARGIN_TOP) / GRID_HEIGHT));
+    return { x, y };
+  };
 
   const handleBackgroundClick = () => {
     setSelectedId(null);
+    if (contextMenu.show) setContextMenu({ ...contextMenu, show: false });
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -24,6 +65,7 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
     if (e.dataTransfer) {
        e.dataTransfer.effectAllowed = "move";
     }
+    if (contextMenu.show) setContextMenu({ ...contextMenu, show: false });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -35,23 +77,9 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
     e.preventDefault();
     if (!draggedId || !onMoveItem) return;
 
-    // Grid Layout Configuration (Must match DesktopIcon)
-    const GRID_WIDTH = 100;
-    const GRID_HEIGHT = 110;
-    const MARGIN_TOP = 40; 
-    const MARGIN_RIGHT = 10;
-
-    // Calculate Grid Position
-    // We calculate X from the right side now
-    const screenWidth = window.innerWidth;
-    const mouseX = e.clientX;
-    const distanceFromRight = screenWidth - mouseX;
-    
-    const dropX = Math.max(0, Math.floor((distanceFromRight - MARGIN_RIGHT) / GRID_WIDTH));
-    const dropY = Math.max(0, Math.floor((e.clientY - MARGIN_TOP) / GRID_HEIGHT));
+    const { x: dropX, y: dropY } = calculateGridPos(e.clientX, e.clientY);
 
     // Collision Detection & Resolution
-    // Function to check if a spot is taken
     const isOccupied = (x: number, y: number) => {
       return items.some(item => 
         item.id !== draggedId && 
@@ -63,17 +91,15 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
     let finalX = dropX;
     let finalY = dropY;
 
-    // If occupied, find the nearest empty slot
     if (isOccupied(finalX, finalY)) {
       let found = false;
       let radius = 1;
-      const maxRadius = 10; // Prevent infinite loops
+      const maxRadius = 10; 
 
       while (!found && radius <= maxRadius) {
-        // Simple spiral/square search around the target
         for (let x = dropX - radius; x <= dropX + radius; x++) {
           for (let y = dropY - radius; y <= dropY + radius; y++) {
-            if (x >= 0 && y >= 0) { // Ensure within bounds
+            if (x >= 0 && y >= 0) { 
               if (!isOccupied(x, y)) {
                 finalX = x;
                 finalY = y;
@@ -92,11 +118,76 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
     setDraggedId(null);
   };
 
+  const handleDesktopContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const gridPos = calculateGridPos(e.clientX, e.clientY);
+    setContextMenu({
+      show: true,
+      x: e.clientX,
+      y: e.clientY,
+      type: 'DESKTOP',
+      gridPos
+    });
+  };
+
+  const handleIconContextMenu = (e: React.MouseEvent, item: DesktopItem) => {
+    e.preventDefault();
+    setContextMenu({
+      show: true,
+      x: e.clientX,
+      y: e.clientY,
+      type: 'ICON',
+      targetId: item.id
+    });
+  };
+
+  // Generate Menu Items
+  const getMenuItems = (): ContextMenuItem[] => {
+    if (contextMenu.type === 'DESKTOP') {
+      return [
+        { 
+          label: 'desktop.newFolder', 
+          action: () => contextMenu.gridPos && onCreateFolder?.(contextMenu.gridPos.x, contextMenu.gridPos.y) 
+        },
+        { 
+          label: 'desktop.newFile', 
+          action: () => contextMenu.gridPos && onCreateFile?.(contextMenu.gridPos.x, contextMenu.gridPos.y) 
+        },
+        { separator: true },
+        { label: 'desktop.refresh', action: () => console.log("Refreshing...") },
+        { label: 'desktop.sort', disabled: true },
+        { separator: true },
+        { label: 'desktop.changeWallpaper', action: onOpenSettings },
+      ];
+    } else if (contextMenu.type === 'ICON' && contextMenu.targetId) {
+      const item = items.find(i => i.id === contextMenu.targetId);
+      if (!item) return [];
+
+      const isTrashable = item.type !== 'APP'; // Don't delete system shortcuts (for now)
+
+      return [
+        { label: 'context.open', action: () => onOpenItem(item) },
+        { separator: true },
+        { label: 'context.getInfo', action: () => alert(`Info for ${item.label}`) },
+        { label: 'context.rename', disabled: true }, // TODO: Implement Rename
+        { separator: true },
+        { 
+          label: 'context.delete', 
+          danger: true, 
+          disabled: !isTrashable,
+          action: () => onDeleteItem?.(item.id) 
+        },
+      ];
+    }
+    return [];
+  };
+
   return (
     <div 
       className="relative w-screen h-screen overflow-hidden bg-cover bg-center select-none transition-all duration-500"
       style={{ backgroundImage: `url(${wallpaper})` }}
       onClick={handleBackgroundClick}
+      onContextMenu={handleDesktopContextMenu}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
@@ -113,9 +204,20 @@ export const Desktop: React.FC<DesktopProps> = ({ children, items, onOpenItem, o
             onSelect={setSelectedId}
             onOpen={onOpenItem}
             onDragStart={handleDragStart}
+            onContextMenu={handleIconContextMenu}
           />
         ))}
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.show && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          items={getMenuItems()} 
+          onClose={() => setContextMenu({ ...contextMenu, show: false })} 
+        />
+      )}
 
       {/* Children (Windows, Dock, MenuBar) */}
       <div className="relative z-10 w-full h-full pointer-events-none">

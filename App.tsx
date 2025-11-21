@@ -16,6 +16,7 @@ import { SystemSettings } from './components/apps/SystemSettings';
 import { AppStore } from './components/apps/AppStore';
 import { TextEditor } from './components/apps/TextEditor';
 import { useLanguage } from './contexts/LanguageContext';
+import { Folder, FileText } from 'lucide-react';
 
 const App: React.FC = () => {
   const { t } = useLanguage();
@@ -148,6 +149,7 @@ const App: React.FC = () => {
     ));
   }, []);
 
+  // Desktop Management Logic
   const handleDesktopItemOpen = (item: DesktopItem) => {
     if (item.type === 'APP' && item.appId) {
       openApp(item.appId);
@@ -166,6 +168,34 @@ const App: React.FC = () => {
     setDesktopItems(prev => prev.map(item => 
       item.id === id ? { ...item, gridPos: { x, y } } : item
     ));
+  };
+
+  const handleCreateFolder = (gridX: number, gridY: number) => {
+    const newId = `folder-${Date.now()}`;
+    const newItem: DesktopItem = {
+        id: newId,
+        type: 'FOLDER',
+        label: 'New Folder', // In a real app, logic to increment name (New Folder 2) would be here
+        icon: Folder,
+        gridPos: { x: gridX, y: gridY }
+    };
+    setDesktopItems(prev => [...prev, newItem]);
+  };
+
+  const handleCreateFile = (gridX: number, gridY: number) => {
+    const newId = `file-${Date.now()}`;
+    const newItem: DesktopItem = {
+        id: newId,
+        type: 'FILE',
+        label: 'Untitled.txt',
+        icon: FileText,
+        gridPos: { x: gridX, y: gridY }
+    };
+    setDesktopItems(prev => [...prev, newItem]);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    setDesktopItems(prev => prev.filter(i => i.id !== id));
   };
 
   const handleLogout = () => {
@@ -191,6 +221,10 @@ const App: React.FC = () => {
       items={desktopItems} 
       onOpenItem={handleDesktopItemOpen}
       onMoveItem={handleDesktopItemMove}
+      onDeleteItem={handleDeleteItem}
+      onCreateFolder={handleCreateFolder}
+      onCreateFile={handleCreateFile}
+      onOpenSettings={() => openApp(AppType.SYSTEM_PREFS)}
       wallpaper={wallpaper}
     >
       <MenuBar 

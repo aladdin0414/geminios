@@ -10,6 +10,7 @@ interface DesktopIconProps {
   onSelect: (id: string) => void;
   onOpen: (item: DesktopItem) => void;
   onDragStart?: (e: React.DragEvent, id: string) => void;
+  onContextMenu?: (e: React.MouseEvent, item: DesktopItem) => void;
 }
 
 export const DesktopIcon: React.FC<DesktopIconProps> = ({ 
@@ -18,6 +19,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
   onSelect, 
   onOpen,
   onDragStart,
+  onContextMenu
 }) => {
   const { t } = useLanguage();
   const Icon = item.icon;
@@ -30,6 +32,14 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onOpen(item);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (onContextMenu) {
+      e.stopPropagation(); // Prevent desktop context menu
+      onSelect(item.id); // Select the item being right-clicked
+      onContextMenu(e, item);
+    }
   };
 
   // Grid configuration
@@ -73,6 +83,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
       }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
+      onContextMenu={handleContextMenu}
       draggable
       onDragStart={(e) => onDragStart?.(e, item.id)}
     >
