@@ -22,7 +22,7 @@ export const MenuBar: React.FC = () => {
   });
 
   return (
-    <div className="fixed top-0 left-0 w-full h-8 bg-slate-200/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4 text-xs font-medium text-slate-800 dark:text-white shadow-sm select-none">
+    <div className="fixed top-0 left-0 w-full h-8 bg-slate-200/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4 text-xs font-medium text-slate-800 dark:text-white shadow-sm select-none pointer-events-auto">
       <div className="flex items-center gap-4">
         <Apple size={16} className="cursor-pointer hover:opacity-70" />
         <span className="font-bold hidden sm:block">GeminiOS</span>

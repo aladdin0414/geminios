@@ -1,10 +1,12 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 export enum AppType {
   GEMINI_ASSISTANT = 'GEMINI_ASSISTANT',
   ABOUT = 'ABOUT',
   SYSTEM_PREFS = 'SYSTEM_PREFS',
   TERMINAL = 'TERMINAL',
+  FINDER = 'FINDER',
+  BROWSER = 'BROWSER',
 }
 
 export interface WindowState {
@@ -30,4 +32,13 @@ export interface ChatMessage {
 export interface IconProps {
   size?: number;
   className?: string;
+}
+
+export interface DesktopItem {
+  id: string;
+  type: 'APP' | 'FOLDER' | 'FILE';
+  label: string;
+  icon: React.ElementType;
+  appId?: AppType;
+  gridPos: { x: number; y: number };
 }

@@ -9,7 +9,7 @@ interface DockProps {
 
 export const Dock: React.FC<DockProps> = ({ onAppClick, openApps }) => {
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto">
       <div className="bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl flex items-end gap-3">
         {DOCK_APPS.map((app) => {
           const isOpen = openApps.includes(app.id);
@@ -19,7 +19,7 @@ export const Dock: React.FC<DockProps> = ({ onAppClick, openApps }) => {
                 onClick={() => onAppClick(app.id)}
                 className={`
                   ${app.color} w-12 h-12 rounded-xl flex items-center justify-center
-                  text-white shadow-lg transition-all duration-300 ease-out
+                  shadow-lg transition-all duration-300 ease-out
                   hover:-translate-y-2 hover:scale-110
                 `}
               >

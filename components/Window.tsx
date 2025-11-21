@@ -6,6 +6,7 @@ interface WindowProps {
   windowState: WindowState;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
+  onMaximize: (id: string) => void;
   onFocus: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
 }
@@ -14,10 +15,11 @@ export const Window: React.FC<WindowProps> = ({
   windowState,
   onClose,
   onMinimize,
+  onMaximize,
   onFocus,
   onMove
 }) => {
-  const { id, title, position, size, zIndex, content, isMinimized } = windowState;
+  const { id, title, position, size, zIndex, content, isMinimized, isMaximized } = windowState;
   const windowRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -26,7 +28,9 @@ export const Window: React.FC<WindowProps> = ({
     e.stopPropagation(); // Prevent clicking through to desktop
     onFocus(id);
     
-    // Only allow drag if clicking the header
+    // Only allow drag if clicking the header AND not maximized
+    if (isMaximized) return;
+
     const headerHeight = 40; 
     const rect = windowRef.current?.getBoundingClientRect();
     
@@ -65,28 +69,44 @@ export const Window: React.FC<WindowProps> = ({
 
   if (isMinimized) return null;
 
-  return (
-    <div
-      ref={windowRef}
-      onMouseDown={handleMouseDown}
-      style={{
+  // Styles based on state (Normal vs Maximized)
+  const windowStyle = isMaximized 
+    ? {
+        top: '32px', // Match MenuBar height
+        left: 0,
+        width: '100%',
+        height: 'calc(100% - 32px)',
+        zIndex: zIndex,
+        borderRadius: 0,
+      }
+    : {
         left: position.x,
         top: position.y,
         width: size.width,
         height: size.height,
         zIndex: zIndex,
-      }}
+      };
+
+  return (
+    <div
+      ref={windowRef}
+      onMouseDown={handleMouseDown}
+      style={windowStyle}
       className={`
         absolute flex flex-col
         bg-white dark:bg-slate-900 
-        rounded-xl shadow-2xl border border-slate-200/50 dark:border-slate-700/50
+        ${!isMaximized && 'rounded-xl border border-slate-200/50 dark:border-slate-700/50'}
+        shadow-2xl 
         overflow-hidden backdrop-blur-xl
-        transition-shadow duration-200
+        transition-all duration-200 ease-in-out
         ${isDragging ? 'cursor-grabbing' : 'cursor-default'}
       `}
     >
       {/* Traffic Lights Header */}
-      <div className="h-10 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center px-4 justify-between flex-shrink-0 select-none">
+      <div 
+        className="h-10 bg-slate-100/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center px-4 justify-between flex-shrink-0 select-none"
+        onDoubleClick={() => onMaximize(id)} // Double click header to toggle maximize
+      >
         <div className="flex items-center gap-2 group">
           <button 
             onClick={(e) => { e.stopPropagation(); onClose(id); }}
@@ -101,6 +121,7 @@ export const Window: React.FC<WindowProps> = ({
             <Minus size={8} strokeWidth={3} />
           </button>
           <button 
+            onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
             className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-600 text-transparent hover:text-green-900 transition-colors"
           >
             <Square size={6} strokeWidth={3} fill="currentColor" />
