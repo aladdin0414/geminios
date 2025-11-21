@@ -102,7 +102,10 @@ export const MenuBar: React.FC<MenuBarProps> = ({ onLogout, onAboutClick, onSett
   );
 
   return (
-    <div className="fixed top-0 left-0 w-full h-[32px] bg-[#E3E3E5]/50 dark:bg-[#1e1e1e]/40 backdrop-blur-3xl border-b border-white/5 z-50 flex items-center justify-between px-2 text-[13px] font-medium text-slate-900 dark:text-white shadow-sm select-none pointer-events-auto transition-colors duration-300">
+    <div 
+        className="fixed top-0 left-0 w-full h-[32px] bg-[#E3E3E5]/50 dark:bg-[#1e1e1e]/40 backdrop-blur-3xl border-b border-white/5 z-50 flex items-center justify-between px-2 text-[13px] font-medium text-slate-900 dark:text-white shadow-sm select-none pointer-events-auto transition-colors duration-300"
+        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+    >
       
       {/* Left Side: App Menu */}
       <div className="flex items-center gap-1">

@@ -13,7 +13,8 @@ import {
   Compass,
   Gamepad2,
   LayoutGrid,
-  StickyNote
+  StickyNote,
+  Trash2
 } from 'lucide-react';
 
 export const INITIAL_WINDOW_WIDTH = 600;
@@ -80,10 +81,10 @@ export const DOCK_APPS = [
     color: 'bg-slate-500 text-white'
   },
   {
-    id: AppType.ABOUT,
-    name: 'app.about',
-    icon: Info,
-    color: 'bg-indigo-500 text-white'
+    id: AppType.TRASH,
+    name: 'app.trash',
+    icon: Trash2,
+    color: 'bg-gradient-to-br from-slate-200 to-slate-400 text-slate-700 border border-slate-300'
   }
 ];
 

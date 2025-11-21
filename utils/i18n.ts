@@ -27,6 +27,7 @@ export const translations = {
     "app.appstore": "App Store",
     "app.about": "About",
     "app.texteditor": "TextEdit",
+    "app.trash": "Trash",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari",
     "desktop.folder.projects": "Project Alpha",
@@ -42,6 +43,8 @@ export const translations = {
     "context.delete": "Move to Trash",
     "context.rename": "Rename",
     "context.getInfo": "Get Info",
+    "context.quit": "Quit",
+    "context.keepInDock": "Keep in Dock",
     "finder.favorites": "Favorites",
     "finder.airdrop": "AirDrop",
     "finder.recents": "Recents",
@@ -87,7 +90,10 @@ export const translations = {
     "store.open": "Open",
     "editor.placeholder": "Start typing...",
     "editor.save": "Save",
-    "editor.saved": "Saved"
+    "editor.saved": "Saved",
+    "trash.empty": "Empty Trash",
+    "trash.restore": "Put Back",
+    "trash.items": "items in Trash"
   },
   zh: {
     "login.guest": "访客用户",
@@ -114,6 +120,7 @@ export const translations = {
     "app.appstore": "App Store",
     "app.about": "关于",
     "app.texteditor": "文本编辑",
+    "app.trash": "废纸篓",
     "desktop.shortcut.gemini": "Gemini AI",
     "desktop.shortcut.safari": "Safari浏览器",
     "desktop.folder.projects": "阿尔法项目",
@@ -129,6 +136,8 @@ export const translations = {
     "context.delete": "移到废纸篓",
     "context.rename": "重命名",
     "context.getInfo": "显示简介",
+    "context.quit": "退出",
+    "context.keepInDock": "在程序坞中保留",
     "finder.favorites": "个人收藏",
     "finder.airdrop": "隔空投送",
     "finder.recents": "最近使用",
@@ -174,7 +183,10 @@ export const translations = {
     "store.open": "打开",
     "editor.placeholder": "开始输入...",
     "editor.save": "保存",
-    "editor.saved": "已保存"
+    "editor.saved": "已保存",
+    "trash.empty": "清倒废纸篓",
+    "trash.restore": "放回原处",
+    "trash.items": "项在废纸篓中"
   }
 };
 

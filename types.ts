@@ -10,6 +10,7 @@ export enum AppType {
   MINESWEEPER = 'MINESWEEPER',
   APP_STORE = 'APP_STORE',
   TEXT_EDITOR = 'TEXT_EDITOR',
+  TRASH = 'TRASH',
 }
 
 export interface WindowState {

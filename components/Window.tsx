@@ -207,6 +207,7 @@ export const Window: React.FC<WindowProps> = ({
     <div
       ref={windowRef}
       onMouseDown={handleMouseDown}
+      onContextMenu={(e) => e.stopPropagation()} // Stop context menu propagation to allow default browser menu or app menu
       style={windowStyle}
       className={`
         absolute flex flex-col

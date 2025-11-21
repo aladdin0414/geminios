@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DesktopItem } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { DOCK_APPS } from '../constants';
@@ -7,22 +7,36 @@ import { DOCK_APPS } from '../constants';
 interface DesktopIconProps {
   item: DesktopItem;
   isSelected: boolean;
+  isRenaming?: boolean;
   onSelect: (id: string) => void;
   onOpen: (item: DesktopItem) => void;
   onDragStart?: (e: React.DragEvent, id: string) => void;
   onContextMenu?: (e: React.MouseEvent, item: DesktopItem) => void;
+  onRename?: (newName: string) => void;
 }
 
 export const DesktopIcon: React.FC<DesktopIconProps> = ({ 
   item, 
   isSelected, 
+  isRenaming = false,
   onSelect, 
   onOpen,
   onDragStart,
-  onContextMenu
+  onContextMenu,
+  onRename
 }) => {
   const { t } = useLanguage();
   const Icon = item.icon;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [tempName, setTempName] = useState(t(item.label));
+
+  useEffect(() => {
+      if (isRenaming && inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select();
+      }
+      setTempName(t(item.label));
+  }, [isRenaming, item.label, t]);
   
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -40,6 +54,10 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
       onSelect(item.id); // Select the item being right-clicked
       onContextMenu(e, item);
     }
+  };
+
+  const handleRenameSubmit = () => {
+      if (onRename) onRename(tempName);
   };
 
   // Grid configuration
@@ -74,7 +92,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
     <div 
       className={`
         absolute flex flex-col items-center gap-1 group cursor-pointer pointer-events-auto transition-transform
-        active:scale-95
+        ${!isRenaming ? 'active:scale-95' : ''}
       `}
       style={{
         width: '96px',
@@ -84,7 +102,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
-      draggable
+      draggable={!isRenaming}
       onDragStart={(e) => onDragStart?.(e, item.id)}
     >
       {/* Icon Container (Squircle) */}
@@ -100,15 +118,27 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
         />
       </div>
 
-      {/* Label */}
-      <span className={`
-        text-[11px] font-medium text-center px-1.5 py-0.5 rounded leading-tight select-none max-w-full truncate w-full
-        ${isSelected 
-          ? 'bg-blue-600 text-white' 
-          : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]'}
-      `}>
-        {t(item.label)}
-      </span>
+      {/* Label or Input */}
+      {isRenaming ? (
+          <input 
+            ref={inputRef}
+            value={tempName}
+            onChange={(e) => setTempName(e.target.value)}
+            onBlur={handleRenameSubmit}
+            onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit()}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full text-xs text-center bg-white/90 border border-blue-500 rounded px-1 outline-none text-black"
+          />
+      ) : (
+        <span className={`
+            text-[11px] font-medium text-center px-1.5 py-0.5 rounded leading-tight select-none max-w-full truncate w-full
+            ${isSelected 
+            ? 'bg-blue-600 text-white' 
+            : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]'}
+        `}>
+            {t(item.label)}
+        </span>
+      )}
     </div>
   );
 };

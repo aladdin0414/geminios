@@ -13,6 +13,8 @@ interface DesktopProps {
   onCreateFolder?: (gridX: number, gridY: number) => void;
   onCreateFile?: (gridX: number, gridY: number) => void;
   onOpenSettings?: () => void;
+  onRenameItem?: (id: string, newName: string) => void;
+  onSortItems?: () => void;
   wallpaper: string;
 }
 
@@ -25,10 +27,13 @@ export const Desktop: React.FC<DesktopProps> = ({
   onCreateFolder,
   onCreateFile,
   onOpenSettings,
+  onRenameItem,
+  onSortItems,
   wallpaper 
 }) => {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{
@@ -57,6 +62,7 @@ export const Desktop: React.FC<DesktopProps> = ({
 
   const handleBackgroundClick = () => {
     setSelectedId(null);
+    setRenamingId(null);
     if (contextMenu.show) setContextMenu({ ...contextMenu, show: false });
   };
 
@@ -140,6 +146,11 @@ export const Desktop: React.FC<DesktopProps> = ({
       targetId: item.id
     });
   };
+  
+  const handleRenameSubmit = (id: string, newName: string) => {
+      onRenameItem?.(id, newName);
+      setRenamingId(null);
+  };
 
   // Generate Menu Items
   const getMenuItems = (): ContextMenuItem[] => {
@@ -154,8 +165,8 @@ export const Desktop: React.FC<DesktopProps> = ({
           action: () => contextMenu.gridPos && onCreateFile?.(contextMenu.gridPos.x, contextMenu.gridPos.y) 
         },
         { separator: true },
-        { label: 'desktop.refresh', action: () => console.log("Refreshing...") },
-        { label: 'desktop.sort', disabled: true },
+        { label: 'desktop.refresh', action: () => window.location.reload() },
+        { label: 'desktop.sort', action: () => onSortItems?.() },
         { separator: true },
         { label: 'desktop.changeWallpaper', action: onOpenSettings },
       ];
@@ -169,7 +180,11 @@ export const Desktop: React.FC<DesktopProps> = ({
         { label: 'context.open', action: () => onOpenItem(item) },
         { separator: true },
         { label: 'context.getInfo', action: () => alert(`Info for ${item.label}`) },
-        { label: 'context.rename', disabled: true }, // TODO: Implement Rename
+        { 
+          label: 'context.rename', 
+          disabled: item.type === 'APP',
+          action: () => setRenamingId(item.id) 
+        }, 
         { separator: true },
         { 
           label: 'context.delete', 
@@ -201,10 +216,12 @@ export const Desktop: React.FC<DesktopProps> = ({
             key={item.id}
             item={item}
             isSelected={selectedId === item.id}
+            isRenaming={renamingId === item.id}
             onSelect={setSelectedId}
             onOpen={onOpenItem}
             onDragStart={handleDragStart}
             onContextMenu={handleIconContextMenu}
+            onRename={(newName) => handleRenameSubmit(item.id, newName)}
           />
         ))}
       </div>

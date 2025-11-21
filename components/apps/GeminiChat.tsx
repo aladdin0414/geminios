@@ -1,8 +1,48 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, User } from 'lucide-react';
+import { Send, Sparkles, User, Copy, Check } from 'lucide-react';
 import { createChatSession, sendMessageStream, GeminiChatSession } from '../../services/geminiService';
 import { ChatMessage } from '../../types';
 import { useLanguage } from '../../contexts/LanguageContext';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import remarkGfm from 'remark-gfm';
+
+// Reusable CodeBlock component with Copy functionality
+const CodeBlock = ({ language, children }: { language: string, children: string }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(children);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative my-4 group rounded-lg overflow-hidden border border-white/10 shadow-lg">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <button
+          onClick={handleCopy}
+          className="p-1.5 rounded-md bg-white/10 hover:bg-white/20 text-slate-200 transition-colors backdrop-blur-md border border-white/10 shadow-sm"
+          title="Copy code"
+        >
+          {isCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        language={language}
+        style={vscDarkPlus}
+        PreTag="div"
+        customStyle={{ margin: 0, padding: '1.5rem 1rem', background: '#1e1e1e' }}
+        showLineNumbers={true}
+        wrapLines={true}
+      >
+        {children}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
 
 export const GeminiChat: React.FC = () => {
   const { t, language } = useLanguage();
@@ -15,8 +55,6 @@ export const GeminiChat: React.FC = () => {
   // Initialize session and handle language changes
   useEffect(() => {
     sessionRef.current = createChatSession();
-    // Reset messages on mount or just when first opening? 
-    // Let's just add the welcome message in current language
     setMessages([
         {
           role: 'model',
@@ -24,9 +62,7 @@ export const GeminiChat: React.FC = () => {
           timestamp: new Date()
         }
     ]);
-  }, [t]); // Re-init when language changes to update welcome message? Or just init once?
-  // Better: When language changes, we might want to inform the model, but for now let's just reset or keep history. 
-  // For this demo, re-initializing on language change ensures the welcome message matches.
+  }, [t]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -55,9 +91,6 @@ export const GeminiChat: React.FC = () => {
 
       let fullResponse = '';
       
-      // Inject language instruction if needed, but simplest is to just send user text. 
-      // The model usually auto-detects. To be safe, we could prepend system instruction updates, 
-      // but standard usage is sufficient.
       const stream = sendMessageStream(sessionRef.current, userText);
 
       for await (const chunk of stream) {
@@ -98,15 +131,15 @@ export const GeminiChat: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-slate-50/50 dark:bg-slate-900/80 text-slate-800 dark:text-slate-100">
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 glass-scrollbar">
+      {/* Chat Area - Added select-text to allow copying */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 glass-scrollbar select-text">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+            className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
             <div className={`
-              w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+              w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1
               ${msg.role === 'model' 
                 ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg text-white' 
                 : 'bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-200'}
@@ -115,17 +148,48 @@ export const GeminiChat: React.FC = () => {
             </div>
             
             <div className={`
-              max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm
+              max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm relative group/msg
               ${msg.role === 'user' 
                 ? 'bg-blue-500 text-white rounded-tr-sm' 
                 : 'bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-tl-sm'}
             `}>
-              <div className="whitespace-pre-wrap font-normal">
-                {msg.text}
-                {msg.isStreaming && (
-                  <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-blue-400 animate-pulse"></span>
-                )}
-              </div>
+              {msg.role === 'user' ? (
+                <div className="whitespace-pre-wrap font-normal">{msg.text}</div>
+              ) : (
+                <div className="markdown-body prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-transparent prose-pre:border-none">
+                    <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            a: ({node, ...props}) => <a {...props} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer" />,
+                            code({node, inline, className, children, ...props}: any) {
+                                const match = /language-(\w+)/.exec(className || '')
+                                const codeContent = String(children).replace(/\n$/, '')
+                                if (!inline && match) {
+                                    return (
+                                        <CodeBlock language={match[1]}>
+                                            {codeContent}
+                                        </CodeBlock>
+                                    );
+                                }
+                                return (
+                                    <code {...props} className="bg-slate-200 dark:bg-slate-700/50 px-1.5 py-0.5 rounded text-[13px] font-mono text-pink-600 dark:text-pink-400 border border-slate-300/50 dark:border-slate-600/50">
+                                        {children}
+                                    </code>
+                                )
+                            },
+                            // Override pre to act as a transparent wrapper since CodeBlock handles the pre style
+                            pre: ({node, children, ...props}) => {
+                                return <div className="not-prose">{children}</div>
+                            }
+                        }}
+                    >
+                        {msg.text}
+                    </ReactMarkdown>
+                    {msg.isStreaming && (
+                        <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-blue-400 animate-pulse"></span>
+                    )}
+                </div>
+              )}
             </div>
           </div>
         ))}

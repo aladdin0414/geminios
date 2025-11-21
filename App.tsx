@@ -15,6 +15,7 @@ import { Minesweeper } from './components/apps/Minesweeper';
 import { SystemSettings } from './components/apps/SystemSettings';
 import { AppStore } from './components/apps/AppStore';
 import { TextEditor } from './components/apps/TextEditor';
+import { Trash } from './components/apps/Trash';
 import { useLanguage } from './contexts/LanguageContext';
 import { Folder, FileText } from 'lucide-react';
 
@@ -55,6 +56,8 @@ const App: React.FC = () => {
         return <AppStore />;
         case AppType.TEXT_EDITOR:
         return <TextEditor />;
+        case AppType.TRASH:
+        return <Trash />;
         case AppType.SYSTEM_PREFS:
         return (
             <SystemSettings 
@@ -76,6 +79,14 @@ const App: React.FC = () => {
     x: 100 + (index * 30),
     y: 80 + (index * 30)
   });
+
+  // Get initial window size based on app type
+  const getInitialSize = (type: AppType) => {
+    if (type === AppType.MINESWEEPER) {
+        return { width: 482, height: 628 };
+    }
+    return { width: INITIAL_WINDOW_WIDTH, height: INITIAL_WINDOW_HEIGHT };
+  };
 
   const openApp = (type: AppType, props?: any) => {
     const appInfo = DOCK_APPS.find(a => a.id === type);
@@ -106,7 +117,7 @@ const App: React.FC = () => {
       isMinimized: false,
       isMaximized: false,
       position: getInitialPosition(windows.length),
-      size: { width: INITIAL_WINDOW_WIDTH, height: INITIAL_WINDOW_HEIGHT },
+      size: getInitialSize(type),
       zIndex: nextZIndex,
       content: getAppContent(type, { ...props, title: windowTitle })
     };
@@ -117,6 +128,10 @@ const App: React.FC = () => {
 
   const closeWindow = (id: string) => {
     setWindows(prev => prev.filter(w => w.id !== id));
+  };
+
+  const handleCloseApp = (type: AppType) => {
+      setWindows(prev => prev.filter(w => w.type !== type));
   };
 
   const minimizeWindow = (id: string) => {
@@ -175,7 +190,7 @@ const App: React.FC = () => {
     const newItem: DesktopItem = {
         id: newId,
         type: 'FOLDER',
-        label: 'New Folder', // In a real app, logic to increment name (New Folder 2) would be here
+        label: 'New Folder',
         icon: Folder,
         gridPos: { x: gridX, y: gridY }
     };
@@ -196,6 +211,34 @@ const App: React.FC = () => {
 
   const handleDeleteItem = (id: string) => {
     setDesktopItems(prev => prev.filter(i => i.id !== id));
+  };
+  
+  const handleRenameItem = (id: string, newName: string) => {
+      if (!newName.trim()) return;
+      setDesktopItems(prev => prev.map(item => 
+          item.id === id ? { ...item, label: newName } : item
+      ));
+  };
+
+  const handleSortItems = () => {
+     const sorted = [...desktopItems].sort((a, b) => {
+         const labelA = t(a.label) || a.label;
+         const labelB = t(b.label) || b.label;
+         return labelA.localeCompare(labelB);
+     });
+     
+     // Re-layout items column by column from top-right
+     // Assuming approx 6 items fit vertically
+     const ITEMS_PER_COL = 6;
+     
+     const newItems = sorted.map((item, index) => ({
+         ...item,
+         gridPos: {
+             x: Math.floor(index / ITEMS_PER_COL), 
+             y: index % ITEMS_PER_COL
+         }
+     }));
+     setDesktopItems(newItems);
   };
 
   const handleLogout = () => {
@@ -225,6 +268,8 @@ const App: React.FC = () => {
       onCreateFolder={handleCreateFolder}
       onCreateFile={handleCreateFile}
       onOpenSettings={() => openApp(AppType.SYSTEM_PREFS)}
+      onRenameItem={handleRenameItem}
+      onSortItems={handleSortItems}
       wallpaper={wallpaper}
     >
       <MenuBar 
@@ -252,6 +297,7 @@ const App: React.FC = () => {
 
       <Dock 
         onAppClick={openApp} 
+        onAppClose={handleCloseApp}
         openApps={openAppIds} 
       />
     </Desktop>
