@@ -1,0 +1,5 @@
+{
+  "name": "GeminiOS",
+  "description": "A macOS-inspired desktop environment featuring a fully functional Gemini AI assistant.",
+  "requestFramePermissions": []
+}
