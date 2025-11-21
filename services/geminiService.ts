@@ -1,10 +1,9 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 
 // Initialize the Gemini API client
-// We assume process.env.API_KEY is available as per instructions.
-// In a real Vite/React app this might be import.meta.env.VITE_GEMINI_API_KEY,
-// but adhering to instructions for process.env usage.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// We safely access process.env to avoid crashing in environments where process is undefined (like Vite default)
+const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) ? process.env.API_KEY : '';
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export interface GeminiChatSession {
   chat: Chat;
