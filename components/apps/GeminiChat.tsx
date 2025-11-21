@@ -1,28 +1,32 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Sparkles, User, Bot } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Sparkles, User } from 'lucide-react';
 import { createChatSession, sendMessageStream, GeminiChatSession } from '../../services/geminiService';
 import { ChatMessage } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const GeminiChat: React.FC = () => {
+  const { t, language } = useLanguage();
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'model',
-      text: "Hello! I'm Gemini, your intelligent assistant running on GeminiOS. How can I help you today?",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  // Use a ref to keep the chat session persistent across renders without re-triggering effects
   const sessionRef = useRef<GeminiChatSession | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize session once
+  // Initialize session and handle language changes
   useEffect(() => {
-    if (!sessionRef.current) {
-      sessionRef.current = createChatSession();
-    }
-  }, []);
+    sessionRef.current = createChatSession();
+    // Reset messages on mount or just when first opening? 
+    // Let's just add the welcome message in current language
+    setMessages([
+        {
+          role: 'model',
+          text: t('gemini.welcome'),
+          timestamp: new Date()
+        }
+    ]);
+  }, [t]); // Re-init when language changes to update welcome message? Or just init once?
+  // Better: When language changes, we might want to inform the model, but for now let's just reset or keep history. 
+  // For this demo, re-initializing on language change ensures the welcome message matches.
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -44,13 +48,16 @@ export const GeminiChat: React.FC = () => {
 
     try {
       // Add placeholder for AI response
-      const responseId = Date.now();
       setMessages(prev => [
         ...prev,
         { role: 'model', text: '', timestamp: new Date(), isStreaming: true }
       ]);
 
       let fullResponse = '';
+      
+      // Inject language instruction if needed, but simplest is to just send user text. 
+      // The model usually auto-detects. To be safe, we could prepend system instruction updates, 
+      // but standard usage is sufficient.
       const stream = sendMessageStream(sessionRef.current, userText);
 
       for await (const chunk of stream) {
@@ -133,7 +140,7 @@ export const GeminiChat: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Gemini..."
+            placeholder={t('gemini.placeholder')}
             disabled={isLoading}
             className="w-full pl-4 pr-12 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
           />
@@ -147,7 +154,7 @@ export const GeminiChat: React.FC = () => {
         </div>
         <div className="text-center mt-2">
            <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            Powered by Gemini 2.5 Flash
+            {t('gemini.powered')}
            </p>
         </div>
       </div>

@@ -22,7 +22,7 @@ export const Window: React.FC<WindowProps> = ({
   const { id, title, position, size, zIndex, content, isMinimized, isMaximized } = windowState;
   const windowRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const dragOffset = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent clicking through to desktop
@@ -36,24 +36,34 @@ export const Window: React.FC<WindowProps> = ({
     
     if (rect && e.clientY - rect.top <= headerHeight) {
       setIsDragging(true);
-      setDragOffset({
+      dragOffset.current = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
-      });
+      };
     }
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const newX = e.clientX - dragOffset.x;
-        const newY = e.clientY - dragOffset.y;
-        onMove(id, newX, newY);
+      if (isDragging && windowRef.current) {
+        e.preventDefault();
+        const newX = e.clientX - dragOffset.current.x;
+        const newY = e.clientY - dragOffset.current.y;
+        
+        // Direct DOM update for performance
+        windowRef.current.style.left = `${newX}px`;
+        windowRef.current.style.top = `${newY}px`;
       }
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      if (isDragging && windowRef.current) {
+        setIsDragging(false);
+        // Sync final position with React state
+        const currentLeft = parseFloat(windowRef.current.style.left);
+        const currentTop = parseFloat(windowRef.current.style.top);
+        onMove(id, currentLeft, currentTop);
+      }
     };
 
     if (isDragging) {
@@ -65,7 +75,7 @@ export const Window: React.FC<WindowProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragOffset, id, onMove]);
+  }, [isDragging, id, onMove]);
 
   if (isMinimized) return null;
 
@@ -98,8 +108,7 @@ export const Window: React.FC<WindowProps> = ({
         ${!isMaximized && 'rounded-xl border border-slate-200/50 dark:border-slate-700/50'}
         shadow-2xl 
         overflow-hidden backdrop-blur-xl
-        transition-all duration-200 ease-in-out
-        ${isDragging ? 'cursor-grabbing' : 'cursor-default'}
+        ${isDragging ? 'cursor-grabbing transition-none' : 'cursor-default transition-all duration-200 ease-in-out'}
       `}
     >
       {/* Traffic Lights Header */}

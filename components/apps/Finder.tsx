@@ -1,18 +1,21 @@
 import React from 'react';
 import { Folder, FileText, Image, Music, HardDrive, Cloud, Clock, Download } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface FinderProps {
   title?: string;
 }
 
 export const Finder: React.FC<FinderProps> = ({ title = "Finder" }) => {
+  const { t } = useLanguage();
+  
   const sidebarItems = [
-    { name: 'AirDrop', icon: Cloud },
-    { name: 'Recents', icon: Clock },
-    { name: 'Applications', icon: HardDrive },
-    { name: 'Desktop', icon: HardDrive },
-    { name: 'Documents', icon: FileText },
-    { name: 'Downloads', icon: Download },
+    { name: t('finder.airdrop'), icon: Cloud },
+    { name: t('finder.recents'), icon: Clock },
+    { name: t('finder.applications'), icon: HardDrive },
+    { name: t('finder.desktop'), icon: HardDrive },
+    { name: t('finder.documents'), icon: FileText },
+    { name: t('finder.downloads'), icon: Download },
   ];
 
   const mockFiles = [
@@ -28,7 +31,7 @@ export const Finder: React.FC<FinderProps> = ({ title = "Finder" }) => {
     <div className="flex h-full w-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-b-xl overflow-hidden">
       {/* Sidebar */}
       <div className="w-48 bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-xl border-r border-slate-200 dark:border-slate-700 flex flex-col pt-4 pb-2">
-        <div className="px-4 mb-2 text-xs font-semibold text-slate-400">Favorites</div>
+        <div className="px-4 mb-2 text-xs font-semibold text-slate-400">{t('finder.favorites')}</div>
         {sidebarItems.map((item, idx) => (
           <div key={idx} className="px-4 py-1.5 flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700/50 cursor-pointer transition-colors text-sm">
              <item.icon size={16} className="text-blue-500" />
@@ -61,7 +64,7 @@ export const Finder: React.FC<FinderProps> = ({ title = "Finder" }) => {
         
         {/* Status Bar */}
         <div className="h-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center px-4 text-xs text-slate-400">
-           {mockFiles.length} items, 420 GB available
+           {mockFiles.length} {t('finder.items')}, 420 GB {t('finder.available')}
         </div>
       </div>
     </div>

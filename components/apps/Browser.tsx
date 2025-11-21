@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, ArrowRight, RotateCw, Lock, Search } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const Browser: React.FC = () => {
+  const { t } = useLanguage();
   const [url, setUrl] = useState('https://www.wikipedia.org');
   const [currentSrc, setCurrentSrc] = useState('https://www.wikipedia.org');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +60,7 @@ export const Browser: React.FC = () => {
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             className="w-full bg-slate-200/50 dark:bg-slate-900/50 border-transparent focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-900 rounded-lg pl-8 pr-4 py-1.5 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-            placeholder="Search or enter website name"
+            placeholder={t('browser.placeholder')}
           />
         </div>
         

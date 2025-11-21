@@ -4,13 +4,13 @@ import {
   Info, 
   Settings, 
   Terminal, 
-  Cpu,
   Folder,
   FileText,
   Briefcase,
   Image as ImageIcon,
   Music,
-  Compass
+  Compass,
+  Gamepad2
 } from 'lucide-react';
 
 export const INITIAL_WINDOW_WIDTH = 600;
@@ -22,37 +22,43 @@ export const WALLPAPER_URL = "https://images.unsplash.com/photo-1477346611705-65
 export const DOCK_APPS = [
   {
     id: AppType.FINDER,
-    name: 'Finder',
-    icon: Folder, // Using Folder as Finder icon for simplicity
+    name: 'app.finder',
+    icon: Folder, 
     color: 'bg-blue-600 text-white'
   },
   {
     id: AppType.BROWSER,
-    name: 'Safari',
+    name: 'app.safari',
     icon: Compass,
     color: 'bg-white text-blue-500'
   },
   {
     id: AppType.GEMINI_ASSISTANT,
-    name: 'Gemini AI',
+    name: 'app.gemini',
     icon: MessageSquare,
     color: 'bg-gradient-to-tr from-blue-500 to-purple-600 text-white'
   },
   {
+    id: AppType.MINESWEEPER,
+    name: 'app.minesweeper',
+    icon: Gamepad2,
+    color: 'bg-emerald-500 text-white'
+  },
+  {
     id: AppType.TERMINAL,
-    name: 'Terminal',
+    name: 'app.terminal',
     icon: Terminal,
     color: 'bg-slate-800 text-white'
   },
   {
     id: AppType.SYSTEM_PREFS,
-    name: 'Settings',
+    name: 'app.settings',
     icon: Settings,
     color: 'bg-slate-500 text-white'
   },
   {
     id: AppType.ABOUT,
-    name: 'About',
+    name: 'app.about',
     icon: Info,
     color: 'bg-indigo-500 text-white'
   }
@@ -62,7 +68,7 @@ export const DESKTOP_ITEMS: DesktopItem[] = [
   {
     id: 'shortcut-gemini',
     type: 'APP',
-    label: 'Gemini AI',
+    label: 'desktop.shortcut.gemini',
     icon: MessageSquare,
     appId: AppType.GEMINI_ASSISTANT,
     gridPos: { x: 0, y: 0 }
@@ -70,7 +76,7 @@ export const DESKTOP_ITEMS: DesktopItem[] = [
   {
     id: 'shortcut-safari',
     type: 'APP',
-    label: 'Safari',
+    label: 'desktop.shortcut.safari',
     icon: Compass,
     appId: AppType.BROWSER,
     gridPos: { x: 0, y: 1 }
@@ -78,28 +84,28 @@ export const DESKTOP_ITEMS: DesktopItem[] = [
   {
     id: 'folder-projects',
     type: 'FOLDER',
-    label: 'Project Alpha',
+    label: 'desktop.folder.projects',
     icon: Briefcase,
     gridPos: { x: 0, y: 2 }
   },
   {
     id: 'folder-design',
     type: 'FOLDER',
-    label: 'Design Assets',
+    label: 'desktop.folder.design',
     icon: ImageIcon,
     gridPos: { x: 1, y: 0 }
   },
   {
     id: 'file-notes',
     type: 'FILE',
-    label: 'Meeting Notes.txt',
+    label: 'desktop.file.notes',
     icon: FileText,
     gridPos: { x: 1, y: 1 }
   },
   {
     id: 'file-music',
     type: 'FILE',
-    label: 'Chill Mix.mp3',
+    label: 'desktop.file.music',
     icon: Music,
     gridPos: { x: 1, y: 2 }
   }

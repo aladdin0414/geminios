@@ -1,6 +1,7 @@
 import React from 'react';
 import { DOCK_APPS } from '../constants';
 import { AppType } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DockProps {
   onAppClick: (type: AppType) => void;
@@ -8,6 +9,7 @@ interface DockProps {
 }
 
 export const Dock: React.FC<DockProps> = ({ onAppClick, openApps }) => {
+  const { t } = useLanguage();
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto">
       <div className="bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl flex items-end gap-3">
@@ -27,7 +29,7 @@ export const Dock: React.FC<DockProps> = ({ onAppClick, openApps }) => {
               </button>
               {/* Tooltip */}
               <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs px-2 py-1 rounded pointer-events-none whitespace-nowrap">
-                {app.name}
+                {t(app.name)}
               </div>
               {/* Open Indicator */}
               <div className={`w-1 h-1 rounded-full bg-white/80 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity`} />

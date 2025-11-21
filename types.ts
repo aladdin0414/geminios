@@ -7,6 +7,7 @@ export enum AppType {
   TERMINAL = 'TERMINAL',
   FINDER = 'FINDER',
   BROWSER = 'BROWSER',
+  MINESWEEPER = 'MINESWEEPER',
 }
 
 export interface WindowState {

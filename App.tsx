@@ -3,12 +3,15 @@ import { Desktop } from './components/Desktop';
 import { MenuBar } from './components/MenuBar';
 import { Dock } from './components/Dock';
 import { Window } from './components/Window';
+import { LoginPage } from './components/LoginPage';
 import { AppType, WindowState, DesktopItem } from './types';
 import { DOCK_APPS, INITIAL_WINDOW_HEIGHT, INITIAL_WINDOW_WIDTH, DESKTOP_ITEMS } from './constants';
 import { GeminiChat } from './components/apps/GeminiChat';
 import { AboutApp } from './components/apps/About';
 import { Finder } from './components/apps/Finder';
 import { Browser } from './components/apps/Browser';
+import { Minesweeper } from './components/apps/Minesweeper';
+import { useLanguage } from './contexts/LanguageContext';
 
 // Helper to get content based on app type
 const getAppContent = (type: AppType, props?: any) => {
@@ -21,6 +24,8 @@ const getAppContent = (type: AppType, props?: any) => {
       return <Finder title={props?.title} />;
     case AppType.BROWSER:
       return <Browser />;
+    case AppType.MINESWEEPER:
+      return <Minesweeper />;
     case AppType.SYSTEM_PREFS:
       return <div className="p-8 text-center text-slate-500">System Settings not implemented in demo.</div>;
     case AppType.TERMINAL:
@@ -31,6 +36,8 @@ const getAppContent = (type: AppType, props?: any) => {
 };
 
 const App: React.FC = () => {
+  const { t } = useLanguage();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [nextZIndex, setNextZIndex] = useState(10);
   const [desktopItems, setDesktopItems] = useState<DesktopItem[]>(DESKTOP_ITEMS);
@@ -42,9 +49,18 @@ const App: React.FC = () => {
   });
 
   const openApp = (type: AppType, props?: any) => {
-    // For apps that should be single-instance (like Music or Chat), check if open
-    // For Finder, we might want multiple windows, but for simplicity here, let's just focus if open, unless it's a different folder
-    const existingWindow = windows.find(w => w.type === type && (!props?.title || w.title === props.title));
+    const appInfo = DOCK_APPS.find(a => a.id === type);
+    // Translate the app name or use provided title (which might need translation if it's a key)
+    const translatedAppName = appInfo ? t(appInfo.name) : 'Window';
+    
+    // If opening Finder via desktop folder, use the folder name (already translated via desktop item handling if needed)
+    // But currently props.title comes from desktop item label which is a key
+    let windowTitle = translatedAppName;
+    if (props?.title) {
+        windowTitle = t(props.title);
+    }
+
+    const existingWindow = windows.find(w => w.type === type && w.title === windowTitle);
     
     if (existingWindow) {
       setWindows(prev => prev.map(w => 
@@ -56,21 +72,17 @@ const App: React.FC = () => {
       return;
     }
 
-    const appInfo = DOCK_APPS.find(a => a.id === type);
-    // Fallback for non-dock apps (like Finder opened from desktop if not in dock list explicitly, though it is)
-    const title = props?.title || appInfo?.name || 'Window';
-
     const newWindow: WindowState = {
       id: Math.random().toString(36).substr(2, 9),
       type,
-      title: title,
+      title: windowTitle,
       isOpen: true,
       isMinimized: false,
       isMaximized: false,
       position: getInitialPosition(windows.length),
       size: { width: INITIAL_WINDOW_WIDTH, height: INITIAL_WINDOW_HEIGHT },
       zIndex: nextZIndex,
-      content: getAppContent(type, props)
+      content: getAppContent(type, { ...props, title: windowTitle })
     };
 
     setWindows([...windows, newWindow]);
@@ -111,9 +123,7 @@ const App: React.FC = () => {
     } else if (item.type === 'FOLDER') {
       openApp(AppType.FINDER, { title: item.label });
     } else if (item.type === 'FILE') {
-      // Simple file viewer using Finder app type but different title for now, or just alert
-      // Let's open it in a "Text Editor" mock via Finder logic for now or just generic window
-      openApp(AppType.TERMINAL); // Placeholder: Open terminal for files for now
+      openApp(AppType.TERMINAL); 
     }
   };
 
@@ -123,15 +133,24 @@ const App: React.FC = () => {
     ));
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setWindows([]); 
+  };
+
   const openAppIds = windows.map(w => w.type);
 
-  // Auto-open Gemini Chat on load
+  // Auto-open Gemini Chat on login
   useEffect(() => {
-     if (windows.length === 0) {
+     if (isLoggedIn && windows.length === 0) {
          openApp(AppType.GEMINI_ASSISTANT);
      }
      // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoggedIn]);
+
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
+  }
 
   return (
     <Desktop 
@@ -139,7 +158,10 @@ const App: React.FC = () => {
       onOpenItem={handleDesktopItemOpen}
       onMoveItem={handleDesktopItemMove}
     >
-      <MenuBar />
+      <MenuBar 
+        onLogout={handleLogout}
+        onAboutClick={() => openApp(AppType.ABOUT)}
+      />
       
       {/* Window Layer */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">

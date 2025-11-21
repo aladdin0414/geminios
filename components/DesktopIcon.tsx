@@ -1,5 +1,6 @@
 import React from 'react';
 import { DesktopItem } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DesktopIconProps {
   item: DesktopItem;
@@ -16,6 +17,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
   onOpen,
   onDragStart,
 }) => {
+  const { t } = useLanguage();
   const Icon = item.icon;
   
   const handleClick = (e: React.MouseEvent) => {
@@ -80,7 +82,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
           ? 'bg-blue-600 text-white' 
           : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]'}
       `}>
-        {item.label}
+        {t(item.label)}
       </span>
     </div>
   );
