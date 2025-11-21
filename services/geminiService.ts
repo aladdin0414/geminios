@@ -1,32 +1,8 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 
 // Initialize the Gemini API client
-let apiKey = '';
-
-// Try to get API key from various sources safely
-try {
-  // Vite / Modern Browsers
-  // @ts-ignore - import.meta might not be recognized by all tools
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    // @ts-ignore
-    apiKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY || '';
-  }
-} catch (e) {
-  // Ignore errors if import.meta doesn't exist
-}
-
-// Fallback to process.env (Node.js / Webpack / Classic React App)
-if (!apiKey) {
-  try {
-    if (typeof process !== 'undefined' && process.env) {
-      apiKey = process.env.API_KEY || '';
-    }
-  } catch (e) {
-    console.warn("Error reading API_KEY from environment:", e);
-  }
-}
-
-const ai = new GoogleGenAI({ apiKey: apiKey });
+// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface GeminiChatSession {
   chat: Chat;
