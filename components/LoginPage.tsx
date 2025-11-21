@@ -23,7 +23,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden select-none">
+    <div className="relative w-screen h-screen overflow-hidden select-none">
       {/* Background with blur */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0 transform scale-105"
